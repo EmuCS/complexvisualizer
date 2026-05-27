@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Complex Visualizer & Orbit Dynamics</title>
+    <style>
+      :root {
+        --bg-color: #0b0b0f;
+        --panel-bg: rgba(20, 20, 25, 0.7);
+        --accent-teal: #00ffcc;
+        --text-main: #f3f4f6;
+        --text-muted: #9ca3af;
+        --border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg-color); 
+        color: var(--text-main);
+        overflow: hidden; 
+        height: 100vh;
+      }
+
+      /* Layout Structure */
+      #app-container {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+
+      canvas { 
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 1;
+        image-rendering: -webkit-optimize-contrast;
+        transform: translateZ(0); 
+        backface-visibility: hidden;
+      }
+
+      /* Sleek Glass Control Panel */
+      #control-panel {
+        position: absolute;
+        top: 24px; left: 24px;
+        width: 320px;
+        background: var(--panel-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        z-index: 10;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      }
+
+      h1 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.02em; }
+      .subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px; }
+
+      .control-group { margin-bottom: 20px; }
+      label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; }
+      
+      .value-display { font-size: 0.85rem; font-family: monospace; color: var(--accent-teal); float: right; }
+    </style>
+  </head>
+  <body>
+    <div id="app-container">
+      <div id="control-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <h1>Complex Visualizer</h1>
+        <button id="recenter-btn" title="Recenter Camera" style="
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #00ffcc;
+          border-radius: 6px;
+          padding: 4px 8px;
+          font-size: 0.75rem;
+          font-family: monospace;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        ">📷 Recenter</button>
+        </div>
+        <div class="subtitle">Iterative Orbit Space Visualizer</div>
+          <div style="
+            display: flex;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 24px;
+          ">
+          <button id="mode-sequence" class="toggle-btn active" style="
+            flex: 1;
+            background: rgba(255, 255, 255, 0.07);
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            color: #00ffcc;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+          ">Sequence Mode (n)</button>
+          <button id="mode-iterative" class="toggle-btn" style="
+            flex: 1;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+          ">Iterative Mode (z)</button>
+        </div>
+
+        <div class="control-group">
+          <label>Custom Function f(z)</label>
+          <input type="text" id="custom-formula" value="4 * (0.5 * i)^n" style="
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            color: #00ffcc;
+            font-family: monospace;
+            outline: none;
+            margin-bottom: 4px;
+          ">
+          <div id="formula-error" style="color: #ff007f; font-size: 0.75rem;"></div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+          <div style="flex: 1;">
+            <label>Constant C.real</label>
+            <input type="number" id="param-cr" step="0.0001" value="-0.8" style="
+              width: 100%;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 8px;
+              padding: 10px;
+              color: #f3f4f6;
+              font-family: monospace;
+              outline: none;
+            ">
+          </div>
+          <div style="flex: 1;">
+            <label>Constant C.imag</label>
+            <input type="number" id="param-ci" step="0.0001" value="0.156" style="
+              width: 100%;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 8px;
+              padding: 10px;
+              color: #f3f4f6;
+              font-family: monospace;
+              outline: none;
+            ">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label id="iter-label">Steps (n)</label>
+            <span id="iter-val" style="font-size: 0.85rem; font-family: monospace; color: #00ffcc;">50</span>
+          </div>
+          <input type="number" id="param-iter" step="1" value="50" style="
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            color: #f3f4f6;
+            font-family: monospace;
+            outline: none;
+            margin-bottom: 12px;
+          ">
+          
+          <div style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+          ">
+            <button id="play-btn" style="
+              background: #00ffcc;
+              border: none;
+              color: #0b0b0f;
+              padding: 6px 14px;
+              border-radius: 6px;
+              font-size: 0.8rem;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s ease;
+            ">Play Sequence</button>
+            <span id="anim-status" style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">Static Vector</span>
+          </div>
+        </div>
+      </div>
+      
+      <canvas id="complexCanvas"></canvas>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
