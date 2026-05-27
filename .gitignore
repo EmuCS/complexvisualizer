@@ -22,3 +22,24 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Production builds
+dist/
+build/
+.vite/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# IDE configuration files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
