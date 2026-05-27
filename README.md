@@ -32,7 +32,7 @@ Make sure you have [Node.js](https://nodejs.org/) installed (v18 or higher recom
 
 ## Architectural Overview
 
-This project was because I felt there was a gap in mathematical visualizers that just allowed the simple creation of series and sequences (of complex numbers)
+This inspiration of this project was that there is a gap in mathematical visualizers that just allowed the simple creation of series and sequences (of complex numbers)
 
 To fill this gap
 1. **Discrete Sequence Mode ($n$):** Computes absolute positions independently using an increasing step index ($n$) to render uniform, geometric paths (e.g., standard complex exam proofs and spiral convergences).
@@ -76,4 +76,4 @@ Toggle into **Sequence Mode** or **Iterative Mode** within the interface dashboa
 * **Runtime Compiler:** Math.js (Expression Tree Parser & Complex Number Matrix)
 * **Graphics:** HTML5 Canvas API (Context 2D Optimized Vector Pipeline)
 * **Environment Tooling:** Vite (Fast HMR Bundler Architecture)
-
+* **Engine** WebAssembly (WASM) - for personal practice of C 
