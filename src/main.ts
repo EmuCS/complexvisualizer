@@ -1,3 +1,4 @@
+// @ts-ignore
 import Module from './core/engine.js';
 import { compile, complex } from 'mathjs';
 
