@@ -1,11 +1,14 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { resolve, dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
-  // Attaches project bundles seamlessly to your custom GitHub subfolder
+  // Matches your package.json homepage routing exactly
   base: '/complexvisualizer/',
   
-  // Forces Vite to track index.html as the primary application index anchor
   root: '.',
   
   build: {
@@ -15,16 +18,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-      },
-      external: ['node:module'],
-      output: {
-        globals: {
-          'node:module': 'Object',
-        }
       }
     }
-  },
-  optimizeDeps: {
-    exclude: ['node:module']
   }
 });

@@ -1,5 +1,5 @@
 // @ts-ignore
-import Module from './core/engine.js';
+import Module from './core/engine.js'; // This is your Emscripten factory function
 import { compile, complex } from 'mathjs';
 
 // Application Configurations
@@ -8,7 +8,7 @@ const CONFIG = {
   cr: -0.8,
   ci: 0.156,
   iterations: 50,
-  visibleIterations: 50, // Added to step out calculations smoothly during play mode
+  visibleIterations: 50, 
   zoom: 120, 
   offsetX: 0,            
   offsetY: 0,            
@@ -16,6 +16,9 @@ const CONFIG = {
 };
 
 let compiledFormula = compile(CONFIG.formulaStr);
+
+// 1. Create a global variable to hold running WASM instance once loaded
+let wasmEngine: any = null; 
 
 // Animation State Trackers
 let isAnimating = false;
@@ -26,6 +29,22 @@ let globalCanvas: HTMLCanvasElement | null = null;
 let globalCtx: CanvasRenderingContext2D | null = null;
 
 async function init() {
+  // 2. Initialize  WebAssembly module  when the app starts
+  try {
+    wasmEngine = await Module({
+      locateFile: (path: string) => {
+        if (path.endsWith('.wasm')) {
+          // Solves the GitHub Pages 404 issue by pointing to the root public folder
+          return `${import.meta.env.BASE_URL}engine.wasm`;
+        }
+        return path;
+      }
+    });
+    console.log("WebAssembly Engine successfully loaded!", wasmEngine);
+  } catch (wasmError) {
+    console.error("Failed to compile or instantiate WebAssembly binary:", wasmError);
+  }
+
   const canvas = document.getElementById('complexCanvas') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
