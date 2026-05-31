@@ -2,6 +2,7 @@
 
 A mathematical engine built to visualize and compare discrete complex sequences alongside chaotic iterative loops. This webprogram acts as an interactive sandbox for exploring complex plane behaviors, coordinate mappings, and orbital dynamics in real time.
 
+### Link: https://emucs.github.io/complexvisualizer/
 ---
 
 ## 🔨 Local Setup & Development
