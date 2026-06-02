@@ -1,5 +1,5 @@
 // @ts-ignore
-import Module from './core/engine.js'; 
+declare const Module: any;
 import { compile, complex } from 'mathjs';
 
 // Application Configurations
