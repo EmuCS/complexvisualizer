@@ -1,5 +1,5 @@
 // @ts-ignore
-import Module from './core/engine.js'; // This is your Emscripten factory function
+import Module from './core/engine.js'; 
 import { compile, complex } from 'mathjs';
 
 // Application Configurations
